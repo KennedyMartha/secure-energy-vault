@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.zama-bg {
+  background-color: #ffd200;
+}
+
+/* Hide error notifications and issues badges */
+[data-testid="error-notification"],
+[aria-label*="issue"],
+[aria-label*="Issue"],
+[class*="error-notification"],
+[class*="issue-badge"],
+[class*="issues-badge"] {
+  display: none !important;
+}
+
+/* Hide RainbowKit error overlays if any */
+[class*="rainbow-error"],
+[class*="wallet-error"] {
+  display: none !important;
+}
+
+/* Custom animations for FHE operations */
+@keyframes encryptPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes decryptGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 210, 0, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 210, 0, 0.8); }
+}
+
+.encrypting {
+  animation: encryptPulse 1.5s ease-in-out infinite;
+}
+
+.decrypting {
+  animation: decryptGlow 2s ease-in-out infinite;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .mobile-compact {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffd200;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e6bd00;
+}
+

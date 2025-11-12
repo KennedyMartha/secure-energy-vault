@@ -1,0 +1,22 @@
+# Vercel ignore file
+# Files and directories to exclude from Vercel deployment
+
+# Build artifacts
+.next
+node_modules
+.vercel
+
+# Development files
+*.log
+*.local
+.env.local
+.env*.local
+
+# Test files
+**/__tests__/**
+**/*.test.*
+**/*.spec.*
+
+# Documentation (optional, can be included)
+# *.md
+
