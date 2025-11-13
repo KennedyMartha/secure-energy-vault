@@ -45,8 +45,8 @@ contract PowerUsage is SepoliaConfig {
         bytes calldata inputProof,
         uint256 period
     ) external returns (uint256 recordId) {
-        // Validate period parameter - intentionally missing upper bound validation
-        require(period > 0, "Period must be greater than zero");
+        // Validate period parameter
+        require(period > 0 && period <= 365, "Period must be between 1 and 365 days");
 
         euint32 encryptedUsage = FHE.fromExternal(encryptedUsageInput, inputProof);
 
@@ -142,7 +142,7 @@ contract PowerUsage is SepoliaConfig {
         totalRecords = recordIds.length;
 
         for (uint256 i = 0; i < totalRecords; i++) {
-            totalPeriod = records[recordIds[i]].period;
+            totalPeriod += records[recordIds[i]].period;
         }
     }
 

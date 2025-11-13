@@ -106,7 +106,7 @@ export const PowerUsageDemo = () => {
 
   const totalUsage = powerUsage.records
     .filter(record => record.decryptedValue !== undefined)
-    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) * 100; // Convert from stored format
+    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100; // Convert from stored format
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,6 +232,7 @@ export const PowerUsageDemo = () => {
                 id="period"
                 type="number"
                 min="1"
+                max="365"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
