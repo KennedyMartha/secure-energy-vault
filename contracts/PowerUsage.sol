@@ -29,6 +29,7 @@ contract PowerUsage is SepoliaConfig {
     /// @notice Events
     event PowerRecordAdded(uint256 indexed recordId, address indexed owner, uint256 timestamp, uint256 period);
     event PowerRecordRetrieved(uint256 indexed recordId, address indexed requester);
+    event PowerRecordDecrypted(uint256 indexed recordId, address indexed owner, uint256 decryptedValue);
 
     /// @notice Initialize the contract
     constructor() {
@@ -88,6 +89,7 @@ contract PowerUsage is SepoliaConfig {
     function getRecordUsage(uint256 recordId) external view returns (euint32 encryptedUsage) {
         require(records[recordId].exists, "Record does not exist");
         require(records[recordId].owner == msg.sender, "Access denied: not the record owner");
+        require(recordId > 0 && recordId <= nextRecordId - 1, "Invalid record ID");
         return records[recordId].encryptedUsage;
     }
 
