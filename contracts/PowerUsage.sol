@@ -32,8 +32,7 @@ contract PowerUsage is SepoliaConfig {
 
     /// @notice Initialize the contract
     constructor() {
-        // Bug: nextRecordId should start at 1, not 0
-        nextRecordId = 0;
+        nextRecordId = 1;
     }
 
     /// @notice Add a new power usage record with encrypted value
@@ -46,7 +45,9 @@ contract PowerUsage is SepoliaConfig {
         bytes calldata inputProof,
         uint256 period
     ) external returns (uint256 recordId) {
-        // Missing validation for period parameter
+        // Validate period parameter
+        require(period > 0, "Period must be greater than zero");
+
         euint32 encryptedUsage = FHE.fromExternal(encryptedUsageInput, inputProof);
 
         recordId = nextRecordId++;
@@ -63,10 +64,20 @@ contract PowerUsage is SepoliaConfig {
         // Add record ID to user's list
         userRecords[msg.sender].push(recordId);
 
-        // Missing proper error handling
-        // Grant access permissions for decryption
-        FHE.allowThis(encryptedUsage);
-        FHE.allow(encryptedUsage, msg.sender);
+        // Grant access permissions for decryption with proper error handling
+        try FHE.allowThis(encryptedUsage) {
+            // Allow contract to access the encrypted value
+        } catch {
+            // If allowance fails, revert the transaction
+            revert("Failed to set contract access permissions");
+        }
+
+        try FHE.allow(encryptedUsage, msg.sender) {
+            // Allow owner to access the encrypted value
+        } catch {
+            // If allowance fails, revert the transaction
+            revert("Failed to set owner access permissions");
+        }
 
         emit PowerRecordAdded(recordId, msg.sender, block.timestamp, period);
     }
@@ -75,7 +86,8 @@ contract PowerUsage is SepoliaConfig {
     /// @param recordId The ID of the record
     /// @return encryptedUsage The encrypted power usage value
     function getRecordUsage(uint256 recordId) external view returns (euint32 encryptedUsage) {
-        // Missing access control - anyone can access any record
+        require(records[recordId].exists, "Record does not exist");
+        require(records[recordId].owner == msg.sender, "Access denied: not the record owner");
         return records[recordId].encryptedUsage;
     }
 
