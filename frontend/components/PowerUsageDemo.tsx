@@ -114,12 +114,12 @@ export const PowerUsageDemo = () => {
     const periodNum = parseInt(period) || 1;
 
     if (isNaN(value) || value <= 0) {
-      alert("Please enter a valid power usage value (kWh)");
+      alert("Please enter a valid power usage value (kWh) greater than 0");
       return;
     }
 
-    if (periodNum <= 0) {
-      alert("Please enter a valid period number");
+    if (periodNum <= 0 || periodNum > 365) {
+      alert("Please enter a valid period number between 1 and 365 days");
       return;
     }
 
