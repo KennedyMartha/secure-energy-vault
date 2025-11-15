@@ -108,9 +108,24 @@ export const PowerUsageDemo = () => {
     const value = parseFloat(powerUsageValue);
     const periodNum = parseInt(period) || 1;
 
-    // Bug: Missing validation and error handling
-    await powerUsage.submitRecord(value, periodNum);
-    // Bug: Not clearing form after submission
+    if (isNaN(value) || value <= 0) {
+      alert("Please enter a valid power usage value (kWh)");
+      return;
+    }
+
+    if (periodNum <= 0) {
+      alert("Please enter a valid period number");
+      return;
+    }
+
+    try {
+      await powerUsage.submitRecord(value, periodNum);
+      setPowerUsageValue("");
+      setPeriod("");
+    } catch (error) {
+      console.error("Failed to submit record:", error);
+      alert("Failed to submit record. Please try again.");
+    }
   };
 
   const buttonClass =
@@ -190,7 +205,15 @@ export const PowerUsageDemo = () => {
             <div className="flex items-end">
               <button
                 type="submit"
-                disabled={false} // Bug: Button never disabled
+                disabled={
+                  !powerUsage.canSubmit ||
+                  powerUsage.isSubmitting ||
+                  !powerUsageValue ||
+                  isNaN(parseFloat(powerUsageValue)) ||
+                  parseFloat(powerUsageValue) <= 0 ||
+                  !period ||
+                  parseInt(period) <= 0
+                }
                 className={buttonClass + " w-full"}
               >
                 {powerUsage.isSubmitting ? "Submitting..." : "Submit Record"}
@@ -250,8 +273,8 @@ export const PowerUsageDemo = () => {
                       </div>
                     ) : (
                       <div className="mt-2">
-                        <span className="text-sm text-red-500">
-                          Error: Cannot display encrypted value
+                        <span className="text-sm text-gray-500">
+                          Encrypted value stored on-chain
                         </span>
                       </div>
                     )}
