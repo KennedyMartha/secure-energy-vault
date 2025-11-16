@@ -217,8 +217,19 @@ export const usePowerUsage = (parameters: {
     async (powerUsageValue: number, period: number) => {
       if (isSubmittingRef.current || isLoadingRef.current) return;
 
-      if (!powerUsage.address || !ethersSigner || powerUsageValue <= 0) {
+      // Enhanced input validation
+      if (!powerUsage.address || !ethersSigner) {
         setMessage("Missing required components for submission");
+        return;
+      }
+
+      if (powerUsageValue <= 0 || powerUsageValue > 1000000) {
+        setMessage("Power usage value must be between 0 and 1,000,000 kWh");
+        return;
+      }
+
+      if (period <= 0 || period > 999999) {
+        setMessage("Period must be between 1 and 999,999");
         return;
       }
 
@@ -234,7 +245,7 @@ export const usePowerUsage = (parameters: {
 
       isSubmittingRef.current = true;
       setIsSubmitting(true);
-      setMessage(`Encrypting and submitting ${powerUsageValue} kWh...`);
+      setMessage(`Preparing encryption for ${powerUsageValue} kWh...`);
 
       const run = async () => {
         const isStale = async () => {
@@ -291,12 +302,21 @@ export const usePowerUsage = (parameters: {
           await loadUserRecords();
         } catch (e: any) {
           const errorMessage = e?.message || String(e);
-          // Check if it's a relayer connection error
+
+          // Enhanced error handling with specific error types
           if (errorMessage.includes("Relayer") || errorMessage.includes("relayer") || errorMessage.includes("Bad JSON")) {
             setMessage("Relayer service temporarily unavailable. Please try again in a few moments. If the problem persists, check Zama community status.");
+          } else if (errorMessage.includes("insufficient funds")) {
+            setMessage("Insufficient funds to pay for transaction gas fees.");
+          } else if (errorMessage.includes("user rejected")) {
+            setMessage("Transaction was cancelled by user.");
+          } else if (errorMessage.includes("network") || errorMessage.includes("connection")) {
+            setMessage("Network connection error. Please check your internet connection and try again.");
           } else {
             setMessage("Failed to submit record: " + errorMessage);
           }
+
+          console.error("Submit record error:", e);
         } finally {
           isSubmittingRef.current = false;
           setIsSubmitting(false);
