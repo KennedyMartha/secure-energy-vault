@@ -188,6 +188,43 @@ contract PowerUsage is SepoliaConfig {
             recordIds[i] = tempResults[i];
         }
     }
+
+    /// @notice Get multiple records metadata in batch
+    /// @param user The address of the user
+    /// @param startIndex Starting index in user's record list
+    /// @param count Number of records to retrieve
+    /// @return recordIds Array of record IDs
+    /// @return timestamps Array of timestamps
+    /// @return periods Array of periods
+    function getUserRecordsBatch(
+        address user,
+        uint256 startIndex,
+        uint256 count
+    ) external view returns (
+        uint256[] memory recordIds,
+        uint256[] memory timestamps,
+        uint256[] memory periods
+    ) {
+        uint256[] memory allRecords = userRecords[user];
+        require(startIndex < allRecords.length, "Start index out of bounds");
+
+        uint256 actualCount = count;
+        if (startIndex + count > allRecords.length) {
+            actualCount = allRecords.length - startIndex;
+        }
+
+        recordIds = new uint256[](actualCount);
+        timestamps = new uint256[](actualCount);
+        periods = new uint256[](actualCount);
+
+        for (uint256 i = 0; i < actualCount; i++) {
+            uint256 recordId = allRecords[startIndex + i];
+            PowerRecord storage record = records[recordId];
+            recordIds[i] = recordId;
+            timestamps[i] = record.timestamp;
+            periods[i] = record.period;
+        }
+    }
 }
 
 
