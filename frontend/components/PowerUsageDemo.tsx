@@ -22,6 +22,7 @@ import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import { usePowerUsage } from "@/hooks/usePowerUsage";
 import { errorNotDeployed } from "./ErrorNotDeployed";
+import { formatPowerUsage, formatTimestamp, formatRelativeTime } from "@/utils/formatters";
 
 export const PowerUsageDemo = () => {
   const [mounted, setMounted] = useState(false);
@@ -261,13 +262,13 @@ export const PowerUsageDemo = () => {
                         Period: {record.period}
                       </span>
                       <span className="text-sm text-gray-500">
-                        {new Date(record.timestamp * 1000).toLocaleDateString()}
+                        {formatTimestamp(record.timestamp)} ({formatRelativeTime(record.timestamp)})
                       </span>
                     </div>
                     {record.decryptedValue !== undefined ? (
                       <div className="mt-2">
                         <span className="text-lg font-bold text-green-600">
-                          {record.decryptedValue.toString()} kWh
+                          {formatPowerUsage(record.decryptedValue)}
                         </span>
                         <span className="text-sm text-gray-500 ml-2">(Decrypted)</span>
                       </div>
