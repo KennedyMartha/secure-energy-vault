@@ -133,6 +133,19 @@ contract PowerUsage is SepoliaConfig {
         return userRecords[user];
     }
 
+    /// @notice Get statistics for a user
+    /// @param user The address of the user
+    /// @return totalRecords Total number of records
+    /// @return totalPeriod Sum of all periods (for averaging)
+    function getUserStats(address user) external view returns (uint256 totalRecords, uint256 totalPeriod) {
+        uint256[] memory recordIds = userRecords[user];
+        totalRecords = recordIds.length;
+
+        for (uint256 i = 0; i < totalRecords; i++) {
+            totalPeriod += records[recordIds[i]].period;
+        }
+    }
+
     /// @notice Get a specific record ID for a user by index
     /// @param user The address of the user
     /// @param index The index in the user's record list
@@ -140,6 +153,38 @@ contract PowerUsage is SepoliaConfig {
     function getUserRecordByIndex(address user, uint256 index) external view returns (uint256 recordId) {
         require(index < userRecords[user].length, "Index out of bounds");
         return userRecords[user][index];
+    }
+
+    /// @notice Get records within a period range
+    /// @param user The address of the user
+    /// @param minPeriod Minimum period value (inclusive)
+    /// @param maxPeriod Maximum period value (inclusive)
+    /// @return recordIds Array of record IDs within the period range
+    function getUserRecordsInPeriodRange(
+        address user,
+        uint256 minPeriod,
+        uint256 maxPeriod
+    ) external view returns (uint256[] memory recordIds) {
+        require(minPeriod <= maxPeriod, "Invalid period range");
+
+        uint256[] memory allRecords = userRecords[user];
+        uint256[] memory tempResults = new uint256[](allRecords.length);
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < allRecords.length; i++) {
+            uint256 recordId = allRecords[i];
+            uint256 period = records[recordId].period;
+            if (period >= minPeriod && period <= maxPeriod) {
+                tempResults[count] = recordId;
+                count++;
+            }
+        }
+
+        // Create properly sized result array
+        recordIds = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            recordIds[i] = tempResults[i];
+        }
     }
 }
 
