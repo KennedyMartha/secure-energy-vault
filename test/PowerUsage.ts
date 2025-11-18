@@ -45,6 +45,37 @@ describe("PowerUsage Contract", function () {
     expect(totalRecords).to.eq(0);
   });
 
+  it("should batch retrieve user records", async function () {
+    // Add multiple records first
+    const powerUsage1 = 150;
+    const powerUsage2 = 200;
+    const powerUsage3 = 175;
+    const period1 = 1;
+    const period2 = 2;
+    const period3 = 3;
+
+    const encryptedUsage1 = await fhevm.createEncryptedInput(powerUsageContractAddress, signers.alice.address);
+    await encryptedUsage1.add64(powerUsage1);
+    const encryptedUsage2 = await fhevm.createEncryptedInput(powerUsageContractAddress, signers.alice.address);
+    await encryptedUsage2.add64(powerUsage2);
+    const encryptedUsage3 = await fhevm.createEncryptedInput(powerUsageContractAddress, signers.alice.address);
+    await encryptedUsage3.add64(powerUsage3);
+
+    await powerUsageContract.connect(signers.alice).addRecord(encryptedUsage1, encryptedUsage1.getProof(), period1);
+    await powerUsageContract.connect(signers.alice).addRecord(encryptedUsage2, encryptedUsage2.getProof(), period2);
+    await powerUsageContract.connect(signers.alice).addRecord(encryptedUsage3, encryptedUsage3.getProof(), period3);
+
+    // Test batch retrieval
+    const [recordIds, timestamps, periods] = await powerUsageContract.getUserRecordsBatch(signers.alice.address, 0, 3);
+
+    expect(recordIds.length).to.eq(3);
+    expect(periods.length).to.eq(3);
+    expect(timestamps.length).to.eq(3);
+    expect(periods[0]).to.eq(period1);
+    expect(periods[1]).to.eq(period2);
+    expect(periods[2]).to.eq(period3);
+  });
+
   it("should add a power usage record", async function () {
     const powerUsage = 150; // kWh
     const period = 1;
