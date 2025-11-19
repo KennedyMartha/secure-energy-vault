@@ -104,6 +104,10 @@ export const PowerUsageDemo = () => {
     userAddress: address, // Pass stable address as dependency
   });
 
+  const totalUsage = powerUsage.records
+    .filter(record => record.decryptedValue !== undefined)
+    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100; // Convert from stored format
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = parseFloat(powerUsageValue);
@@ -170,6 +174,37 @@ export const PowerUsageDemo = () => {
         <p className="text-gray-600 mb-6">
           Record your household power usage with encrypted privacy protection
         </p>
+
+        {powerUsage.userStats && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Your Statistics</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-blue-700">Total Records:</span>
+                <span className="ml-2 text-blue-900">{powerUsage.userStats.totalRecords}</span>
+              </div>
+              <div>
+                <span className="font-medium text-blue-700">Decrypted:</span>
+                <span className="ml-2 text-blue-900">
+                  {powerUsage.records.filter(r => r.decryptedValue !== undefined).length}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-blue-700">Total Usage:</span>
+                <span className="ml-2 text-blue-900">{formatPowerUsage(Math.round(totalUsage * 100))}</span>
+              </div>
+              <div>
+                <span className="font-medium text-blue-700">Avg Period:</span>
+                <span className="ml-2 text-blue-900">
+                  {powerUsage.userStats.totalRecords > 0
+                    ? (powerUsage.userStats.totalPeriod / powerUsage.userStats.totalRecords).toFixed(1)
+                    : '0'
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">

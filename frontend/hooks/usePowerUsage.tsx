@@ -95,6 +95,7 @@ export const usePowerUsage = (parameters: {
   } = parameters;
 
   const [records, setRecords] = useState<PowerRecord[]>([]);
+  const [userStats, setUserStats] = useState<{totalRecords: number, totalPeriod: number} | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isDecrypting, setIsDecrypting] = useState<number | null>(null);
@@ -138,6 +139,30 @@ export const usePowerUsage = (parameters: {
 
   const hasLoadedRef = useRef(false);
   const lastAddressRef = useRef<string | undefined>(undefined);
+
+  const loadUserStats = useCallback(async () => {
+    if (!powerUsageRef.current?.address || !ethersReadonlyProvider || !ethersSigner) {
+      return;
+    }
+
+    try {
+      const contract = new ethers.Contract(
+        powerUsageRef.current.address,
+        powerUsageRef.current.abi,
+        ethersReadonlyProvider
+      );
+
+      const userAddress = await ethersSigner.getAddress();
+      const [totalRecords, totalPeriod] = await contract.getUserStats(userAddress);
+
+      setUserStats({
+        totalRecords: Number(totalRecords),
+        totalPeriod: Number(totalPeriod)
+      });
+    } catch (error) {
+      console.error("Failed to load user stats:", error);
+    }
+  }, [ethersReadonlyProvider, ethersSigner]);
 
   const loadUserRecords = useCallback(async () => {
     if (isLoadingRef.current) return;
@@ -189,8 +214,10 @@ export const usePowerUsage = (parameters: {
     } finally {
       isLoadingRef.current = false;
       setIsLoading(false);
+      // Load stats after records are loaded
+      await loadUserStats();
     }
-  }, [ethersReadonlyProvider, ethersSigner]);
+  }, [ethersReadonlyProvider, ethersSigner, loadUserStats]);
 
   // Only auto-load once when wallet connects or address changes
   useEffect(() => {
@@ -300,6 +327,7 @@ export const usePowerUsage = (parameters: {
 
           setMessage("Record submitted successfully!");
           await loadUserRecords();
+          await loadUserStats();
         } catch (e: any) {
           const errorMessage = e?.message || String(e);
 
@@ -396,11 +424,13 @@ export const usePowerUsage = (parameters: {
   return {
     contractAddress: powerUsage.address,
     records,
+    userStats,
     canSubmit,
     canLoadRecords,
     submitRecord,
     decryptRecord,
     loadUserRecords,
+    loadUserStats,
     isLoading,
     isSubmitting,
     isDecrypting,
