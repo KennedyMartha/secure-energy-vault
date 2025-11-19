@@ -13,9 +13,21 @@ export const config = getDefaultConfig({
     ...(process.env.NODE_ENV === 'development' ? [mainnet] : [])
   ],
   transports: {
-    [hardhat.id]: http('http://localhost:8545'),
-    [sepolia.id]: http(process.env.NEXT_PUBLIC_INFURA_URL || `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`),
-    [mainnet.id]: http(process.env.NEXT_PUBLIC_INFURA_URL || `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`),
+    [hardhat.id]: http('http://localhost:8545', {
+      timeout: 30000,
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
+    [sepolia.id]: http(process.env.NEXT_PUBLIC_INFURA_URL || `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`, {
+      timeout: 30000,
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_INFURA_URL || `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_API_KEY}`, {
+      timeout: 30000,
+      retryCount: 3,
+      retryDelay: 1000,
+    }),
   },
   ssr: true, // Enable server-side rendering support
 });
