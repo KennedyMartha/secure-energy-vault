@@ -160,6 +160,79 @@ describe("PowerUsage Contract", function () {
     const nonExistent = await powerUsageContract.recordExists(999);
     expect(nonExistent).to.be.false;
   });
+
+  it("should provide user statistics", async function () {
+    // Alice adds multiple records
+    const powerUsage1 = 150; // kWh
+    const period1 = 1;
+    const encryptedPowerUsage1 = await fhevm.createEncryptedInput(
+      powerUsageContractAddress,
+      signers.alice.address
+    );
+    encryptedPowerUsage1.add32(powerUsage1 * 100); // Convert to integer format
+
+    let tx = await powerUsageContract
+      .connect(signers.alice)
+      .addRecord(encryptedPowerUsage1.handles[0], encryptedPowerUsage1.inputProof, period1);
+    await tx.wait();
+
+    const powerUsage2 = 200; // kWh
+    const period2 = 2;
+    const encryptedPowerUsage2 = await fhevm.createEncryptedInput(
+      powerUsageContractAddress,
+      signers.alice.address
+    );
+    encryptedPowerUsage2.add32(powerUsage2 * 100); // Convert to integer format
+
+    tx = await powerUsageContract
+      .connect(signers.alice)
+      .addRecord(encryptedPowerUsage2.handles[0], encryptedPowerUsage2.inputProof, period2);
+    await tx.wait();
+
+    // Check statistics
+    const [totalRecords, totalPeriod] = await powerUsageContract.getUserStats(signers.alice.address);
+    expect(totalRecords).to.eq(2);
+    expect(totalPeriod).to.eq(period1 + period2);
+
+    // Bob should have zero stats
+    const [bobTotalRecords, bobTotalPeriod] = await powerUsageContract.getUserStats(signers.bob.address);
+    expect(bobTotalRecords).to.eq(0);
+    expect(bobTotalPeriod).to.eq(0);
+  });
+
+  it("should filter records by period range", async function () {
+    // Alice adds records with different periods
+    const records = [
+      { usage: 100, period: 1 },
+      { usage: 150, period: 2 },
+      { usage: 200, period: 3 },
+      { usage: 250, period: 4 },
+    ];
+
+    for (const record of records) {
+      const encryptedInput = await fhevm.createEncryptedInput(
+        powerUsageContractAddress,
+        signers.alice.address
+      );
+      encryptedInput.add32(record.usage * 100);
+
+      const tx = await powerUsageContract
+        .connect(signers.alice)
+        .addRecord(encryptedInput.handles[0], encryptedInput.inputProof, record.period);
+      await tx.wait();
+    }
+
+    // Test period range filtering
+    const recordsInRange = await powerUsageContract.getUserRecordsInPeriodRange(
+      signers.alice.address,
+      2,
+      3
+    );
+    expect(recordsInRange.length).to.eq(2); // periods 2 and 3
+
+    const allRecords = await powerUsageContract.getUserRecords(signers.alice.address);
+    expect(allRecords.length).to.eq(4); // all records
+  });
 });
 
 
