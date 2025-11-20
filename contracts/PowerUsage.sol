@@ -189,13 +189,14 @@ contract PowerUsage is SepoliaConfig {
         }
     }
 
-    /// @notice Get multiple records metadata in batch
-    /// @param user The address of the user
-    /// @param startIndex Starting index in user's record list
-    /// @param count Number of records to retrieve
-    /// @return recordIds Array of record IDs
-    /// @return timestamps Array of timestamps
-    /// @return periods Array of periods
+    /// @notice Get multiple records metadata in batch for efficient pagination
+    /// @dev This function optimizes gas costs for users with large record sets
+    /// @param user The address of the user whose records to retrieve
+    /// @param startIndex Starting index in user's record list (0-based)
+    /// @param count Maximum number of records to retrieve
+    /// @return recordIds Array of record IDs in ascending order
+    /// @return timestamps Array of creation timestamps for each record
+    /// @return periods Array of period values for each record
     function getUserRecordsBatch(
         address user,
         uint256 startIndex,
