@@ -173,6 +173,7 @@ contract PowerUsage is SepoliaConfig {
         require(minPeriod <= maxPeriod, "Invalid period range");
 
         uint256[] memory allRecords = userRecords[user];
+        // Pre-allocate maximum possible size, will be resized later
         uint256[] memory tempResults = new uint256[](allRecords.length);
         uint256 count = 0;
 
