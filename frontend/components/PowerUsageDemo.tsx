@@ -24,16 +24,20 @@ import { usePowerUsage } from "@/hooks/usePowerUsage";
 import { errorNotDeployed } from "./ErrorNotDeployed";
 import { formatPowerUsage, formatTimestamp, formatRelativeTime } from "@/utils/formatters";
 
+// Constants for form validation
+const MAX_PERIOD_DAYS = 365;
+const MAX_POWER_USAGE = 10000; // kWh
+
 export const PowerUsageDemo = () => {
   const [mounted, setMounted] = useState(false);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  
+
   const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
   const ethersSigner = useEthersSigner({ chainId });
-  
+
   const [powerUsageValue, setPowerUsageValue] = useState<string>("");
   const [period, setPeriod] = useState<string>("");
 
