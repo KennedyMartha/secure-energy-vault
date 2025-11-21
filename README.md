@@ -6,6 +6,7 @@ A decentralized application for recording and managing household power usage wit
 
 - **Application**: [https://powerrr.vercel.app/](https://powerrr.vercel.app/)
 - **Demo Video**: [Application Overview](https://raw.githubusercontent.com/KennedyMartha/secure-energy-vault/master/demo-videos/demo-overview.mp4)
+- **Technical Demo**: [Technical Implementation](https://raw.githubusercontent.com/KennedyMartha/secure-energy-vault/master/demo-videos/technical-demo.mp4)
 
 
 ## 📋 Contract Information
