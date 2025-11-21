@@ -24,9 +24,10 @@ import { usePowerUsage } from "@/hooks/usePowerUsage";
 import { errorNotDeployed } from "./ErrorNotDeployed";
 import { formatPowerUsage, formatTimestamp, formatRelativeTime } from "@/utils/formatters";
 
-// Constants for form validation
+  // Constants for form validation
 const MAX_PERIOD_DAYS = 365;
 const MAX_POWER_USAGE = 10000; // kWh
+const MIN_POWER_USAGE = 0.01; // kWh
 
 export const PowerUsageDemo = () => {
   const [mounted, setMounted] = useState(false);
