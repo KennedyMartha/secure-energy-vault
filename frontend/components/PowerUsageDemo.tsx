@@ -108,9 +108,11 @@ export const PowerUsageDemo = () => {
     userAddress: address, // Pass stable address as dependency
   });
 
+  // Calculate total usage from decrypted records
+  // FHEVM stores values multiplied by 100 for precision, so divide by 100 for display
   const totalUsage = powerUsage.records
     .filter(record => record.decryptedValue !== undefined)
-    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100; // Convert from stored format
+    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
