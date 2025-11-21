@@ -5,9 +5,7 @@ A decentralized application for recording and managing household power usage wit
 ## 🚀 Live Demo
 
 - **Application**: [https://powerrr.vercel.app/](https://powerrr.vercel.app/)
-- **Demo Video**: [Application Overview](https://raw.githubusercontent.com/KennedyMartha/secure-energy-vault/master/demo-videos/demo-overview.mp4)
-- **Technical Demo**: [Technical Implementation](https://raw.githubusercontent.com/KennedyMartha/secure-energy-vault/master/demo-videos/technical-demo.mp4)
-
+- **Demo Video**: [Application Demo](https://raw.githubusercontent.com/KennedyMartha/secure-energy-vault/master/power.mp4)
 
 ## 📋 Contract Information
 
@@ -43,13 +41,9 @@ Statistics are calculated on-chain and displayed in real-time in the user dashbo
 - 🔑 **Local Decryption**: Only the record owner can decrypt their data client-side
 - 📊 **Record Management**: Track multiple power usage records with period identifiers
 - 📈 **User Statistics Dashboard**: Real-time analytics showing total records, decrypted records, total usage, and average period
-- 🎛️ **Advanced Filtering**: Query records by period ranges and user statistics on-chain
-- 🔒 **Enhanced Security**: Improved access controls, input validation, and error handling
 - 🌈 **Rainbow Wallet Integration**: Modern wallet connection using RainbowKit with MetaMask support
 - 🧪 **Comprehensive Testing**: Full test coverage for local Hardhat and Sepolia testnet
-- 🎨 **Modern UI**: Responsive design with real-time formatting, relative timestamps, and improved UX
-- ⚡ **Performance Optimized**: Efficient data loading, caching strategies, and optimized hooks
-- 🛡️ **Input Validation**: Client and contract-side validation with comprehensive error messages
+- 🎨 **Modern UI**: Responsive design with real-time formatting and improved UX
 - 📱 **Mobile Responsive**: Fully responsive design that works on all device sizes
 
 ## Quick Start
@@ -140,23 +134,29 @@ Statistics are calculated on-chain and displayed in real-time in the user dashbo
 ## Project Structure
 
 ```
-pro26/
+secure-energy-vault/
 ├── contracts/
-│   └── PowerUsage.sol      # Main smart contract
+│   └── PowerUsage.sol           # Main FHE smart contract
 ├── deploy/
-│   └── deploy.ts           # Deployment script
+│   └── deploy.ts                # Hardhat deployment script
 ├── test/
-│   ├── PowerUsage.ts       # Local tests
-│   └── PowerUsageSepolia.ts # Sepolia tests
+│   ├── PowerUsage.ts            # Local Hardhat tests
+│   └── PowerUsageSepolia.ts     # Sepolia testnet tests
 ├── tasks/
-│   └── PowerUsage.ts       # Hardhat tasks
+│   └── PowerUsage.ts            # Hardhat custom tasks
 ├── frontend/
-│   ├── app/                # Next.js app directory
-│   ├── components/         # React components
-│   ├── hooks/             # Custom React hooks
-│   ├── config/            # Configuration files
-│   └── abi/               # Generated contract ABIs
-└── hardhat.config.ts      # Hardhat configuration
+│   ├── app/                     # Next.js 15 app directory
+│   ├── components/              # React components
+│   ├── hooks/                   # Custom React hooks
+│   ├── config/                  # Wagmi & RainbowKit config
+│   ├── fhevm/                   # FHEVM utilities & hooks
+│   ├── abi/                     # Generated contract ABIs
+│   └── utils/                   # Helper utilities
+├── demo-videos/                 # Demo video files
+├── scripts/                     # Setup and utility scripts
+├── types/                       # TypeScript type definitions
+├── hardhat.config.ts           # Hardhat configuration
+└── package.json                # Project dependencies
 ```
 
 ## Contract Functions
@@ -222,29 +222,13 @@ npm run test:sepolia
 
 **Note**: Requires contract to be deployed on Sepolia first.
 
-## Development Guidelines
-
-### Code Style
-
-- Use TypeScript for all new code
-- Follow ESLint configuration for code formatting
-- Use conventional commit messages for all changes
-- Maintain comprehensive test coverage
-
-### Branching Strategy
-
-- `main` - Production-ready code
-- `develop` - Development branch for features
-- `feature/*` - Feature branches
-- `hotfix/*` - Hotfix branches
-
-### Environment Setup
+## Environment Setup
 
 Create a `.env.local` file in the frontend directory:
 
 ```bash
-NEXT_PUBLIC_CONTRACT_ADDRESS=your_deployed_contract_address
-NEXT_PUBLIC_NETWORK=localhost
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x12D41ef4594ee82C9a698aC4078E0A67AA9dc743
+NEXT_PUBLIC_NETWORK=sepolia
 ```
 
 ## Technology Stack
