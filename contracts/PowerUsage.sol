@@ -7,6 +7,7 @@ import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 /// @title PowerUsage - Encrypted Household Power Usage Log
 /// @author PowerUsage Contract
 /// @notice A contract for storing encrypted household power usage records to protect user privacy
+/// @dev Uses FHEVM for fully homomorphic encryption of power usage data
 contract PowerUsage is SepoliaConfig {
     /// @notice Structure representing a power usage record
     struct PowerRecord {
