@@ -81,6 +81,9 @@ contract PowerUsage is SepoliaConfig {
         }
 
         emit PowerRecordAdded(recordId, msg.sender, block.timestamp, period);
+
+        // Emit additional metadata for better tracking
+        emit PowerRecordRetrieved(recordId, msg.sender);
     }
 
     /// @notice Get the encrypted power usage value for a record
