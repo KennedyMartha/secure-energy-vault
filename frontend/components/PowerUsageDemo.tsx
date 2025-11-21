@@ -6,6 +6,12 @@
  * Main component for the Power Usage tracking application.
  * Handles encrypted power usage record submission and decryption.
  * Supports both local Hardhat network and Sepolia testnet.
+ *
+ * Features:
+ * - Encrypted data storage using FHEVM
+ * - Real-time statistics dashboard
+ * - Client-side decryption for privacy
+ * - Comprehensive input validation
  */
 
 import { useState, useEffect, useRef, useMemo } from "react";
