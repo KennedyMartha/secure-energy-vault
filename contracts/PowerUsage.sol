@@ -26,6 +26,9 @@ contract PowerUsage is SepoliaConfig {
     /// @notice Counter for generating unique record IDs
     uint256 private nextRecordId;
 
+    /// @notice Contract version for future upgrades
+    uint256 public constant VERSION = 1;
+
     /// @notice Events
     event PowerRecordAdded(uint256 indexed recordId, address indexed owner, uint256 timestamp, uint256 period);
     event PowerRecordRetrieved(uint256 indexed recordId, address indexed requester);
