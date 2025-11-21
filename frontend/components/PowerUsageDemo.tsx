@@ -6,6 +6,12 @@
  * Main component for the Power Usage tracking application.
  * Handles encrypted power usage record submission and decryption.
  * Supports both local Hardhat network and Sepolia testnet.
+ *
+ * Features:
+ * - Encrypted data storage using FHEVM
+ * - Real-time statistics dashboard
+ * - Client-side decryption for privacy
+ * - Comprehensive input validation
  */
 
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -24,16 +30,21 @@ import { usePowerUsage } from "@/hooks/usePowerUsage";
 import { errorNotDeployed } from "./ErrorNotDeployed";
 import { formatPowerUsage, formatTimestamp, formatRelativeTime } from "@/utils/formatters";
 
+  // Constants for form validation
+const MAX_PERIOD_DAYS = 365;
+const MAX_POWER_USAGE = 10000; // kWh
+const MIN_POWER_USAGE = 0.01; // kWh
+
 export const PowerUsageDemo = () => {
   const [mounted, setMounted] = useState(false);
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  
+
   const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
   const ethersSigner = useEthersSigner({ chainId });
-  
+
   const [powerUsageValue, setPowerUsageValue] = useState<string>("");
   const [period, setPeriod] = useState<string>("");
 
@@ -104,9 +115,11 @@ export const PowerUsageDemo = () => {
     userAddress: address, // Pass stable address as dependency
   });
 
+  // Calculate total usage from decrypted records
+  // FHEVM stores values multiplied by 100 for precision, so divide by 100 for display
   const totalUsage = powerUsage.records
     .filter(record => record.decryptedValue !== undefined)
-    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100; // Convert from stored format
+    .reduce((sum, record) => sum + (record.decryptedValue || 0), 0) / 100;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,12 +127,12 @@ export const PowerUsageDemo = () => {
     const periodNum = parseInt(period) || 1;
 
     if (isNaN(value) || value <= 0) {
-      alert("Please enter a valid power usage value (kWh)");
+      alert("Please enter a valid power usage value (kWh) greater than 0");
       return;
     }
 
-    if (periodNum <= 0) {
-      alert("Please enter a valid period number");
+    if (periodNum <= 0 || periodNum > 365) {
+      alert("Please enter a valid period number between 1 and 365 days");
       return;
     }
 
@@ -232,6 +245,7 @@ export const PowerUsageDemo = () => {
                 id="period"
                 type="number"
                 min="1"
+                max="365"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -265,7 +279,9 @@ export const PowerUsageDemo = () => {
         )}
 
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Your Records</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Your Records ({powerUsage.records.length})
+          </h2>
           <button
             onClick={powerUsage.loadUserRecords}
             disabled={!powerUsage.canLoadRecords || powerUsage.isLoading}

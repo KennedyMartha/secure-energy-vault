@@ -7,6 +7,7 @@ import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 /// @title PowerUsage - Encrypted Household Power Usage Log
 /// @author PowerUsage Contract
 /// @notice A contract for storing encrypted household power usage records to protect user privacy
+/// @dev Uses FHEVM for fully homomorphic encryption of power usage data
 contract PowerUsage is SepoliaConfig {
     /// @notice Structure representing a power usage record
     struct PowerRecord {
@@ -26,9 +27,13 @@ contract PowerUsage is SepoliaConfig {
     /// @notice Counter for generating unique record IDs
     uint256 private nextRecordId;
 
+    /// @notice Contract version for future upgrades
+    uint256 public constant VERSION = 1;
+
     /// @notice Events
     event PowerRecordAdded(uint256 indexed recordId, address indexed owner, uint256 timestamp, uint256 period);
     event PowerRecordRetrieved(uint256 indexed recordId, address indexed requester);
+    event PowerRecordDecrypted(uint256 indexed recordId, address indexed owner, uint256 decryptedValue);
 
     /// @notice Initialize the contract
     constructor() {
@@ -46,7 +51,7 @@ contract PowerUsage is SepoliaConfig {
         uint256 period
     ) external returns (uint256 recordId) {
         // Validate period parameter
-        require(period > 0, "Period must be greater than zero");
+        require(period > 0 && period <= 365, "Period must be between 1 and 365 days");
 
         euint32 encryptedUsage = FHE.fromExternal(encryptedUsageInput, inputProof);
 
@@ -80,6 +85,9 @@ contract PowerUsage is SepoliaConfig {
         }
 
         emit PowerRecordAdded(recordId, msg.sender, block.timestamp, period);
+
+        // Emit additional metadata for better tracking
+        emit PowerRecordRetrieved(recordId, msg.sender);
     }
 
     /// @notice Get the encrypted power usage value for a record
@@ -88,6 +96,7 @@ contract PowerUsage is SepoliaConfig {
     function getRecordUsage(uint256 recordId) external view returns (euint32 encryptedUsage) {
         require(records[recordId].exists, "Record does not exist");
         require(records[recordId].owner == msg.sender, "Access denied: not the record owner");
+        require(recordId > 0 && recordId <= nextRecordId - 1, "Invalid record ID");
         return records[recordId].encryptedUsage;
     }
 
@@ -168,6 +177,7 @@ contract PowerUsage is SepoliaConfig {
         require(minPeriod <= maxPeriod, "Invalid period range");
 
         uint256[] memory allRecords = userRecords[user];
+        // Pre-allocate maximum possible size, will be resized later
         uint256[] memory tempResults = new uint256[](allRecords.length);
         uint256 count = 0;
 
@@ -184,6 +194,44 @@ contract PowerUsage is SepoliaConfig {
         recordIds = new uint256[](count);
         for (uint256 i = 0; i < count; i++) {
             recordIds[i] = tempResults[i];
+        }
+    }
+
+    /// @notice Get multiple records metadata in batch for efficient pagination
+    /// @dev This function optimizes gas costs for users with large record sets
+    /// @param user The address of the user whose records to retrieve
+    /// @param startIndex Starting index in user's record list (0-based)
+    /// @param count Maximum number of records to retrieve
+    /// @return recordIds Array of record IDs in ascending order
+    /// @return timestamps Array of creation timestamps for each record
+    /// @return periods Array of period values for each record
+    function getUserRecordsBatch(
+        address user,
+        uint256 startIndex,
+        uint256 count
+    ) external view returns (
+        uint256[] memory recordIds,
+        uint256[] memory timestamps,
+        uint256[] memory periods
+    ) {
+        uint256[] memory allRecords = userRecords[user];
+        require(startIndex < allRecords.length, "Start index out of bounds");
+
+        uint256 actualCount = count;
+        if (startIndex + count > allRecords.length) {
+            actualCount = allRecords.length - startIndex;
+        }
+
+        recordIds = new uint256[](actualCount);
+        timestamps = new uint256[](actualCount);
+        periods = new uint256[](actualCount);
+
+        for (uint256 i = 0; i < actualCount; i++) {
+            uint256 recordId = allRecords[startIndex + i];
+            PowerRecord storage record = records[recordId];
+            recordIds[i] = recordId;
+            timestamps[i] = record.timestamp;
+            periods[i] = record.period;
         }
     }
 }
