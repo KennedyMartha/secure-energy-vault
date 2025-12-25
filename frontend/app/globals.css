@@ -2,8 +2,209 @@
 @tailwind components;
 @tailwind utilities;
 
-.zama-bg {
-  background-color: #ffd200;
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 50 15% 97%;
+    --foreground: 217 91% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 217 91% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 91% 20%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 93% 70%;
+    --secondary-foreground: 217 91% 20%;
+
+    --muted: 217 20% 96%;
+    --muted-foreground: 217 20% 45%;
+
+    --accent: 142 71% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 30% 88%;
+    --input: 217 30% 88%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 217 91% 8%;
+    --foreground: 217 20% 95%;
+
+    --card: 217 50% 12%;
+    --card-foreground: 217 20% 95%;
+
+    --popover: 217 50% 12%;
+    --popover-foreground: 217 20% 95%;
+
+    --primary: 217 91% 55%;
+    --primary-foreground: 217 91% 8%;
+
+    --secondary: 45 93% 60%;
+    --secondary-foreground: 217 91% 8%;
+
+    --muted: 217 40% 18%;
+    --muted-foreground: 217 20% 65%;
+
+    --accent: 142 71% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 40% 20%;
+    --input: 217 40% 20%;
+    --ring: 217 91% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animations and effects */
+@layer utilities {
+  /* Animated gradient background */
+  .gradient-animated {
+    background: linear-gradient(-45deg, hsl(217 91% 60%), hsl(142 71% 45%), hsl(45 93% 70%), hsl(217 91% 55%));
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Floating animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Pulse glow effect */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(217 91% 55%), hsl(142 71% 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow effect */
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Smooth fade in */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+  }
 }
 
 /* Hide error notifications and issues badges */
@@ -29,8 +230,8 @@
 }
 
 @keyframes decryptGlow {
-  0%, 100% { box-shadow: 0 0 5px rgba(255, 210, 0, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(255, 210, 0, 0.8); }
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
 }
 
 .encrypting {
@@ -41,30 +242,22 @@
   animation: decryptGlow 2s ease-in-out infinite;
 }
 
-/* Responsive design improvements */
-@media (max-width: 768px) {
-  .mobile-compact {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--muted));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ffd200;
+  background: hsl(var(--primary));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e6bd00;
+  background: hsl(var(--primary) / 0.8);
 }
 

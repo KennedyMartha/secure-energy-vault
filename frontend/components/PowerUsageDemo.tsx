@@ -29,6 +29,10 @@ import { useEthersSigner } from "../hooks/useEthersSigner";
 import { usePowerUsage } from "@/hooks/usePowerUsage";
 import { errorNotDeployed } from "./ErrorNotDeployed";
 import { formatPowerUsage, formatTimestamp, formatRelativeTime } from "@/utils/formatters";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
   // Constants for form validation
 const MAX_PERIOD_DAYS = 365;
@@ -146,11 +150,6 @@ export const PowerUsageDemo = () => {
     }
   };
 
-  const buttonClass =
-    "inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white shadow-sm " +
-    "transition-colors duration-200 hover:bg-blue-700 active:bg-blue-800 " +
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 " +
-    "disabled:opacity-50 disabled:pointer-events-none";
 
   // Show loading state during SSR and initial hydration
   if (!mounted) {
@@ -166,11 +165,17 @@ export const PowerUsageDemo = () => {
 
   if (!isConnected) {
     return (
-      <div className="mx-auto text-center">
-        <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
-        <p className="text-gray-600 mb-6">Connect your wallet to start logging your power usage</p>
-        <ConnectButton />
-      </div>
+      <Card className="max-w-md mx-auto animate-fade-in-up">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Connect Your Wallet</CardTitle>
+          <CardDescription className="text-center">
+            Connect your wallet to start logging your power usage
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+          <ConnectButton />
+        </CardContent>
+      </Card>
     );
   }
 
@@ -179,175 +184,186 @@ export const PowerUsageDemo = () => {
   }
 
   return (
-    <div className="grid w-full gap-6 max-w-4xl mx-auto px-4">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Encrypted Power Usage Log
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Record your household power usage with encrypted privacy protection
-        </p>
-
-        {powerUsage.userStats && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Your Statistics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-blue-700">Total Records:</span>
-                <span className="ml-2 text-blue-900">{powerUsage.userStats.totalRecords}</span>
-              </div>
-              <div>
-                <span className="font-medium text-blue-700">Decrypted:</span>
-                <span className="ml-2 text-blue-900">
-                  {powerUsage.records.filter(r => r.decryptedValue !== undefined).length}
-                </span>
-              </div>
-              <div>
-                <span className="font-medium text-blue-700">Total Usage:</span>
-                <span className="ml-2 text-blue-900">{formatPowerUsage(Math.round(totalUsage * 100))}</span>
-              </div>
-              <div>
-                <span className="font-medium text-blue-700">Avg Period:</span>
-                <span className="ml-2 text-blue-900">
-                  {powerUsage.userStats.totalRecords > 0
-                    ? (powerUsage.userStats.totalPeriod / powerUsage.userStats.totalRecords).toFixed(1)
-                    : '0'
-                  }
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label htmlFor="powerUsage" className="block text-sm font-medium text-gray-700 mb-2">
-                Power Usage (kWh)
-              </label>
-              <input
-                id="powerUsage"
-                type="number"
-                step="0.01"
-                min="0"
-                value={powerUsageValue}
-                onChange={(e) => setPowerUsageValue(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="150.5"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="period" className="block text-sm font-medium text-gray-700 mb-2">
-                Period (Day/Month)
-              </label>
-              <input
-                id="period"
-                type="number"
-                min="1"
-                max="365"
-                value={period}
-                onChange={(e) => setPeriod(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="1"
-              />
-            </div>
-            <div className="flex items-end">
-              <button
-                type="submit"
-                disabled={
-                  !powerUsage.canSubmit ||
-                  powerUsage.isSubmitting ||
-                  !powerUsageValue ||
-                  isNaN(parseFloat(powerUsageValue)) ||
-                  parseFloat(powerUsageValue) <= 0 ||
-                  !period ||
-                  parseInt(period) <= 0
-                }
-                className={buttonClass + " w-full"}
-              >
-                {powerUsage.isSubmitting ? "Submitting..." : "Submit Record"}
-              </button>
-            </div>
-          </div>
-        </form>
-
-        {powerUsage.message && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-800">{powerUsage.message}</p>
-          </div>
-        )}
-
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Your Records ({powerUsage.records.length})
-          </h2>
-          <button
-            onClick={powerUsage.loadUserRecords}
-            disabled={!powerUsage.canLoadRecords || powerUsage.isLoading}
-            className={buttonClass + " text-sm px-3 py-1"}
-          >
-            {powerUsage.isLoading ? "Loading..." : "Refresh"}
-          </button>
-        </div>
-
-        {powerUsage.records.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>No power usage records yet.</p>
-            <p className="text-sm mt-2">Submit your first record above to get started.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {powerUsage.records.map((record) => (
-              <div
-                key={record.recordId}
-                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-2">
-                      <span className="font-semibold text-gray-900">
-                        Record #{record.recordId}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Period: {record.period}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {formatTimestamp(record.timestamp)} ({formatRelativeTime(record.timestamp)})
-                      </span>
+    <div className="grid w-full gap-6 max-w-6xl mx-auto px-4">
+      <Card className="glass border-2 border-primary/20 shadow-xl animate-fade-in-up">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold gradient-text">
+            Encrypted Power Usage Log
+          </CardTitle>
+          <CardDescription className="text-base">
+            Record your household power usage with encrypted privacy protection
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {powerUsage.userStats && (
+            <Card className="bg-primary/5 border-primary/20">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Your Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-background/50 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">{powerUsage.userStats.totalRecords}</div>
+                    <div className="text-sm text-muted-foreground">Total Records</div>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded-lg">
+                    <div className="text-2xl font-bold text-accent">
+                      {powerUsage.records.filter(r => r.decryptedValue !== undefined).length}
                     </div>
+                    <div className="text-sm text-muted-foreground">Decrypted</div>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">{formatPowerUsage(Math.round(totalUsage * 100))}</div>
+                    <div className="text-sm text-muted-foreground">Total Usage</div>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded-lg">
+                    <div className="text-2xl font-bold text-accent">
+                      {powerUsage.userStats.totalRecords > 0
+                        ? (powerUsage.userStats.totalPeriod / powerUsage.userStats.totalRecords).toFixed(1)
+                        : '0'
+                      }
+                    </div>
+                    <div className="text-sm text-muted-foreground">Avg Period</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="powerUsage">Power Usage (kWh)</Label>
+                <Input
+                  id="powerUsage"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={powerUsageValue}
+                  onChange={(e) => setPowerUsageValue(e.target.value)}
+                  placeholder="150.5"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="period">Period (Days)</Label>
+                <Input
+                  id="period"
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value)}
+                  placeholder="1"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button
+                  type="submit"
+                  disabled={
+                    !powerUsage.canSubmit ||
+                    powerUsage.isSubmitting ||
+                    !powerUsageValue ||
+                    isNaN(parseFloat(powerUsageValue)) ||
+                    parseFloat(powerUsageValue) <= 0 ||
+                    !period ||
+                    parseInt(period) <= 0
+                  }
+                  className="w-full"
+                >
+                  {powerUsage.isSubmitting ? "Submitting..." : "Submit Record"}
+                </Button>
+              </div>
+            </div>
+          </form>
+
+          {powerUsage.message && (
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <p className="text-sm text-primary-foreground">{powerUsage.message}</p>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold gradient-text">
+              Your Records ({powerUsage.records.length})
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={powerUsage.loadUserRecords}
+              disabled={!powerUsage.canLoadRecords || powerUsage.isLoading}
+            >
+              {powerUsage.isLoading ? "Loading..." : "Refresh"}
+            </Button>
+          </div>
+
+          {powerUsage.records.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="text-center py-12">
+                <div className="text-6xl mb-4 animate-float">⚡</div>
+                <p className="text-lg text-muted-foreground mb-2">
+                  No power usage records yet.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Submit your first record above to get started.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {powerUsage.records.map((record, index) => (
+                <Card
+                  key={record.recordId}
+                  className="card-hover border-primary/20 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">Record #{record.recordId}</CardTitle>
+                        <CardDescription>
+                          Period: {record.period} days • {formatTimestamp(record.timestamp)}
+                        </CardDescription>
+                        <CardDescription className="text-xs mt-1">
+                          {formatRelativeTime(record.timestamp)}
+                        </CardDescription>
+                      </div>
+                      {record.decryptedValue === undefined && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => powerUsage.decryptRecord(record.recordId)}
+                          disabled={powerUsage.isDecrypting === record.recordId}
+                        >
+                          {powerUsage.isDecrypting === record.recordId
+                            ? "Decrypting..."
+                            : "Decrypt"}
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
                     {record.decryptedValue !== undefined ? (
-                      <div className="mt-2">
-                        <span className="text-lg font-bold text-green-600">
+                      <div className="text-center p-4 bg-accent/10 rounded-lg">
+                        <div className="text-3xl font-bold text-accent mb-1">
                           {formatPowerUsage(record.decryptedValue)}
-                        </span>
-                        <span className="text-sm text-gray-500 ml-2">(Decrypted)</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground">Decrypted Value</div>
                       </div>
                     ) : (
-                      <div className="mt-2">
-                        <span className="text-sm text-gray-500">
-                          Encrypted value stored on-chain
-                        </span>
+                      <div className="text-center p-4 bg-muted/50 rounded-lg">
+                        <div className="text-sm text-muted-foreground">
+                          🔒 Encrypted value stored on-chain
+                        </div>
                       </div>
                     )}
-                  </div>
-                  {record.decryptedValue === undefined && (
-                    <button
-                      onClick={() => powerUsage.decryptRecord(record.recordId)}
-                      disabled={powerUsage.isDecrypting === record.recordId}
-                      className={buttonClass + " ml-4 text-sm px-3 py-1"}
-                    >
-                      {powerUsage.isDecrypting === record.recordId
-                        ? "Decrypting..."
-                        : "Decrypt"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

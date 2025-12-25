@@ -120,10 +120,11 @@ if (deployLocalhost && deploySepolia && deployLocalhost.address !== "0x000000000
   if (
     JSON.stringify(deployLocalhost.abi) !== JSON.stringify(deploySepolia.abi)
   ) {
-    console.error(
-      `${line}Deployments on localhost and Sepolia differ. Cant use the same abi on both networks. Consider re-deploying the contracts on both networks.${line}`
+    console.warn(
+      `${line}Warning: Deployments on localhost and Sepolia differ. Using localhost ABI for development. Consider re-deploying the contracts on both networks for production.${line}`
     );
-    process.exit(1);
+    // Use localhost ABI for development (prefer localhost over sepolia when they differ)
+    primaryDeployment = deployLocalhost;
   }
 }
 

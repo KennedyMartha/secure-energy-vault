@@ -69,20 +69,12 @@ contract PowerUsage is SepoliaConfig {
         // Add record ID to user's list
         userRecords[msg.sender].push(recordId);
 
-        // Grant access permissions for decryption with proper error handling
-        try FHE.allowThis(encryptedUsage) {
-            // Allow contract to access the encrypted value
-        } catch {
-            // If allowance fails, revert the transaction
-            revert("Failed to set contract access permissions");
-        }
-
-        try FHE.allow(encryptedUsage, msg.sender) {
-            // Allow owner to access the encrypted value
-        } catch {
-            // If allowance fails, revert the transaction
-            revert("Failed to set owner access permissions");
-        }
+        // Grant access permissions for decryption
+        // Allow contract to access the encrypted value
+        FHE.allowThis(encryptedUsage);
+        
+        // Allow owner to access the encrypted value
+        FHE.allow(encryptedUsage, msg.sender);
 
         emit PowerRecordAdded(recordId, msg.sender, block.timestamp, period);
 
